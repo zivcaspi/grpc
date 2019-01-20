@@ -1,0 +1,21 @@
+﻿// See https://developers.google.com/protocol-buffers/docs/proto3
+syntax = "proto3";
+
+package contract;
+
+service InterNodeCommunication
+{
+    rpc ExecuteRequestV1 (RequestV1) returns (/*stream*/ ReplyV1) {}
+}
+
+message RequestV1
+{
+    string Text = 1;
+    string Database = 2;
+    string Properties = 3; // TODO: This is actually a JSON string. May want a better way to serialize/deserialize it
+}
+
+message ReplyV1
+{
+    bytes KustoDataStream = 1;
+}
