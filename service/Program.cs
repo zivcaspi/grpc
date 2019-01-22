@@ -32,6 +32,13 @@ namespace service
         public override Task<ReplyV1> ExecuteRequestV1(RequestV1 request, ServerCallContext context)
         {
             Console.WriteLine("Incoming request");
+
+            var metadata = context.RequestHeaders;
+            foreach (var entry in metadata)
+            {
+                Console.WriteLine($"Metadata[{entry.Key}] = {entry.Value}");
+            }
+
             // throw new RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
             var kds = "Hello, Mister!";
             return Task.FromResult(new ReplyV1 { KustoDataStream = Google.Protobuf.ByteString.CopyFromUtf8(kds) });
