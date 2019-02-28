@@ -23,10 +23,32 @@ namespace client
 
             var client = new InterNodeCommunication.InterNodeCommunicationClient(callInvoker);
 
+            // Sync call
+            Console.WriteLine("Sync call...");
             var reply = client.ExecuteRequestV1(new RequestV1 { Text = "T | count", Database = "NetDefaultDB", Properties = "properties" });
             Console.WriteLine("Reply: " + reply.KustoDataStream.ToStringUtf8());
 
+            // Async call
+            Console.WriteLine("Async call...");
+            var response = client.ExecuteRequestV1Async(new RequestV1 { Text = "T | where 1 == 2", Database = "NetDefaultDB", Properties = "properties" });
+            Console.WriteLine("ResponseAsync: " + response.ResponseAsync.Result.KustoDataStream.ToStringUtf8());
+            var responseMetadata = response.GetTrailers();
+            var responseActivityId = responseMetadata.Where(e => e.Key == "x-ms-activity-id").FirstOrDefault();
+            Console.WriteLine("  x-ms-activity-id: " + responseActivityId);
+
             channel.ShutdownAsync().Wait();
+            Console.WriteLine("Client has completed sending data. Press any key to quit");
+            Console.ReadKey();
+
+            // TODO: Add handling of exceptions. In gRPC, any exception thrown by the service code
+            //       is translated into an RpcException object. It is better that the service code
+            //       will translate all its internal exceptions to RpcException and throw _that_
+            //       back at gRPC, which knows how to carry it then to the client.
+            //
+            // throw new RpcException(new Status(StatusCode.InvalidArgument, "bla bla bla")); // Service-side
+            //
+            // try {...gRPC-client-call..} catch (RpcException ex) { ... } // Client-side
+
         }
     }
 
